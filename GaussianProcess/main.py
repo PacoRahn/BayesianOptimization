@@ -1,14 +1,18 @@
 import numpy as np
+import matplotlib.pyplot as plt
 from gp import GaussianProcess
 
 
 def main():
     # Generate points
-    x = np.linspace(-3, 3, 100).reshape(-1, 1)
-    print(f"x.shape: {x.shape}")
+    x = np.linspace(-4, 4, 42).reshape(-1, 1)
+    #print(f"x.shape: {x.shape}")
 
-    gp = GaussianProcess()
-    gp.plot_covariance_matrix(x)
+    gp = GaussianProcess(x, kernel_type='rbf')
+    sampled_functions = gp.sample_functions(x,n_functions=5)
+
+    gp.plot_sampled_functions(x, sampled_functions)
+    #gp.plot_covariance_matrix(x)
 
 if __name__ == "__main__":
     main()
