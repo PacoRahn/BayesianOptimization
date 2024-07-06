@@ -1,10 +1,11 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from kernel import Kernel
+from Kernel.Kernel_Factory import Kernel_Factory
+from Kernel.kernels import *
 
 class GaussianProcess:
-    def __init__(self,x,  kernel_type='rbf',mean_function = lambda x: np.zeros(x.shape[0])):
-        self.kernel = Kernel(kernel_type)
+    def __init__(self,x,  kernel_type='rbf',mean_function = lambda x: np.zeros(x.shape[0]),**kwargs):
+        self.kernel = Kernel_Factory.create_kernel(kernel_type,**kwargs)
         self.covariance_matrix = self.kernel(x, x)
         self.mean_function = mean_function
         self.mean = self.mean_function(x) 
