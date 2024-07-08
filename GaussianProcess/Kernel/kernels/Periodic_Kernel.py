@@ -4,12 +4,13 @@ from Kernel.Kernel_Factory import Kernel_Factory
 
 @Kernel_Factory.register_kernel("periodic")
 class Periodic_Kernel(Kernel):
-    def __init__(self, sigma=1.0,p=0.5,l=0.8):
-        super().__init__()
+    def __init__(self, sigma=1.0,p=0.5,l=0.8,**kwargs):
+        super().__init__("periodic")
         # Initialize any additional parameters specific to your kernel
         self.sigma = sigma
         self.p = p
         self.l = l
+        print(f"sigma: {sigma}, p: {p}, l: {l}")
         
     def compute(self, x, y):
         point_wise_matrx = np.zeros((x.shape[0], y.shape[0])) # create matrix to store the pointwise distance calculation
