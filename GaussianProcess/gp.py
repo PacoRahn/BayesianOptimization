@@ -15,10 +15,13 @@ class GaussianProcess:
         self.mean_function = mean_function
         self.mean = self.mean_function(self.x) 
         self.regression = regression
+        self.train_size = train_size
         if regression:
             self.objective = self.test_objective(self.x)
-            self.trained_on = []
-            self.objective_points = [(i*self.x_delta, self.objective[i]) for i in random.sample(range(len(self.objective)), train_size)]
+            self.observations = np.array([])
+            objective_points=  [(i*self.x_delta, self.objective[i]) for i in random.sample(range(len(self.objective)), train_size)]
+            self.objective_points = np.array(objective_points).T
+
             
 
         
@@ -41,14 +44,16 @@ class GaussianProcess:
             print("This GP is not for regression")
             return
         objective_points_copy = self.objective_points[:]
-        xs,ys = zip(*objective_points_copy)
-        print()
-        self.update(np.array(list(xs)),np.array(list(ys)))
-        '''for x,y in objective_points_copy:
-            self.update(np.array([x]),np.array([y]))
-            self.objective_points.remove((x,y))
+        #xs,ys = zip(*objective_points_copy)
+        #self.update(np.array(list(xs)),np.array(list(ys)))
+        for i in range(self.train_size):
+            print(f"self.observations.shape: {self.observations.shape} self.observations.shape: {self.observations}")
+            self.observations = self.objective_points[:,:i]
+            print(f"self.observations.shape: {self.observations.shape} self.observations.shape: {self.observations}")
+
+            self.update(self.observations[0],self.observations[1])
             if plot_intermediate:
-                self.plot_gp()'''
+                self.plot_gp()
         self.plot_gp()
 
     def update(self, x1, y1):
@@ -69,7 +74,6 @@ class GaussianProcess:
         self.mean = u2+(inverse_solved.T@(inter_mean))
         self.covariance_matrix = self.covariance_matrix-inverse_solved.T@cov_12
         self.sigma = np.sqrt(np.diag(self.covariance_matrix))
-        self.trained_on.append((x1,y1))
 
 
     def plot_covariance_matrix(self, x):
@@ -114,13 +118,8 @@ class GaussianProcess:
         ax1.fill_between(self.x, self.mean - 2 * self.sigma, self.mean + 2 * self.sigma, color='red', alpha=0.15, label=r'$2\sigma$')
         ax1.plot(self.x, self.objective, 'b--', label='Objective')
         if self.regression:
-            if self.trained_on:
-                xs,ys = zip(*self.trained_on)
-                ax1.plot(xs,ys,'ro',label='seen')
-            if self.objective_points:
-                xs,ys = zip(*self.objective_points)
-                ax1.plot(xs,ys,'x',label='not seen')
-        ax1.set_title('current distribution of the GP')
+            ax1.plot(self.observations[0],self.observations[1],'ro',label='seen')
+
         ax1.legend()
         sampled_functions = self.sample_functions(self.x, n_functions=5)
         for i in range(len(sampled_functions)):
